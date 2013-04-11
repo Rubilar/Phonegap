@@ -1,0 +1,1605 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Concesionarios</title> 
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" /> 
+		<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" />
+		<script src="js/jquery-1.8.2.min.js" type="text/javascript"></script>
+		<script src="js/jquery.mobile-1.3.0.min.js" type="text/javascript"></script>
+		<script src="js/recuperar.js" type="text/javascript"></script>
+		<script src="js/enviarficha.js" type="text/javascript"></script>
+		<script src="js/validartextfield.js" type="text/javascript"></script>
+		<script src="js/recuperar.js" type="text/javascript"></script>
+		<script src="js/login.js" type="text/javascript"></script>
+		<script src="js/logout.js" type="text/javascript"></script>
+		<script type="text/javascript" charset="utf-8" src="cordova-2.5.0.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value 
+
+    // Wait for Cordova to connect with the device
+    //
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    // Cordova is ready to be used!
+    //
+    function onDeviceReady() {
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+    }
+
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoDataSuccess(imageData) {
+      // Uncomment to view the base64 encoded image data
+      // console.log(imageData);
+
+      // Get image handle
+      //
+      var smallImage = document.getElementById('smallImage');
+
+      // Unhide image elements
+      //
+      smallImage.style.display = 'block';
+
+      // Show the captured photo
+      // The inline CSS rules are used to resize the image
+      //
+      smallImage.src = "data:image/jpeg;base64," + imageData;
+    }
+
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoURISuccess(imageURI) {
+      // Uncomment to view the image file URI 
+      // console.log(imageURI);
+
+      // Get image handle
+      //
+      var largeImage = document.getElementById('largeImage');
+
+      // Unhide image elements
+      //
+      largeImage.style.display = 'block';
+
+      // Show the captured photo
+      // The inline CSS rules are used to resize the image
+      //
+      largeImage.src = imageURI;
+    }
+
+    // A button will call this function
+    //
+    function capturePhoto() {
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+        destinationType: destinationType.DATA_URL });
+    }
+
+    // A button will call this function
+    //
+    function capturePhotoEdit() {
+      // Take picture using device camera, allow edit, and retrieve image as base64-encoded string  
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 20, allowEdit: true,
+        destinationType: destinationType.DATA_URL });
+    }
+
+    // A button will call this function
+    //
+    function getPhoto(source) {
+      // Retrieve image file location from specified source
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
+        destinationType: destinationType.FILE_URI,
+        sourceType: source });
+    }
+
+    // Called if something bad happens.
+    // 
+    function onFail(message) {
+      alert('Failed because: ' + message);
+    }
+
+    </script>
+		<script>
+		//  Declare SQL Query for SQLite
+
+		var createStatement = "CREATE TABLE IF NOT EXISTS auto (id_auto INTEGER PRIMARY KEY AUTOINCREMENT, marca INTEGER, modelo INTEGER, version TEXT, motor TEXT, transmision INTEGER, combustible INTEGER, segmento INTEGER, puertas INTEGER, direccion INTEGER, precio TEXT, kilometraje TEXT, color INTEGER, condicion INTEGER, patente TEXT, moneda INTEGER, ano INTEGER, otrocolor TEXT, dueno INTEGER, airbag_conductor TEXT, airbag_copiloto TEXT, airbag_laterales TEXT, airbag_pasajero TEXT, asiento_ninos TEXT, alarma TEXT, apoya_cabeza_tr TEXT, control_traccion TEXT, esp TEXT, frenos_disco_tr TEXT, llave_codificada TEXT, tuerca_seguridad TEXT, sensor_lluvia TEXT, frenos_abs TEXT, repartidor_fuerza TEXT, aire_acondicionado TEXT, climatizador TEXT, alzavidrios_electricos TEXT, asiento_memoria TEXT, control_crucero TEXT, volante_regulable TEXT, caja_cd TEXT, radio_cd TEXT, cuatro_por_cuatro TEXT, computador_abordo TEXT, cierre_centralizado TEXT, asiento_electrico TEXT, asiento_termico TEXT , radio_cassette TEXT, radio_am_fm TEXT, tapiz_cuero TEXT, espejos_ext_electricos TEXT, llantas_aleacion TEXT, neblineros_delanteros TEXT, neblineros_traseros TEXT, techo_electrico TEXT, techo_manual TEXT, limpiavidrios_trasero TEXT, vidrios_polarizados TEXT, luces_xenon TEXT)";
+		var selectAllStatement = "SELECT * FROM auto";
+		var insertStatement = "INSERT INTO auto (marca, modelo, version, motor, transmision, combustible, segmento, puertas, direccion, precio, kilometraje, color, condicion, patente, moneda, ano, otrocolor, dueno, airbag_conductor, airbag_copiloto, airbag_laterales, airbag_pasajero, asiento_ninos, alarma, apoya_cabeza_tr, control_traccion, esp, frenos_disco_tr, llave_codificada, tuerca_seguridad, sensor_lluvia, frenos_abs, repartidor_fuerza, aire_acondicionado, climatizador, alzavidrios_electricos, asiento_memoria, control_crucero, volante_regulable, caja_cd, radio_cd, cuatro_por_cuatro, computador_abordo, cierre_centralizado, asiento_electrico, asiento_termico, radio_cassette, radio_am_fm, tapiz_cuero, espejos_ext_electricos, llantas_aleacion, neblineros_delanteros, neblineros_traseros, techo_electrico, techo_manual, limpiavidrios_trasero, vidrios_polarizados, luces_xenon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		var updateStatement = "UPDATE auto SET marca = ?, modelo = ?, version = ?, motor= ?, transmision = ?, combustible = ?, segmento = ?, puertas = ?, direccion = ?, precio = ?, kilometraje = ?, color = ?, condicion = ?, patente = ?, moneda = ?, ano = ?, otrocolor = ?, dueno = ?,  airbag_conductor = ?, airbag_copiloto = ?, airbag_laterales = ?, airbag_pasajero = ?, asiento_ninos = ?, alarma = ?, apoya_cabeza_tr = ?, control_traccion = ?, esp = ?, frenos_disco_tr = ?, llave_codificada = ?, tuerca_seguridad = ?, sensor_lluvia = ?, frenos_abs = ?, repartidor_fuerza = ?, aire_acondicionado = ?, climatizador = ?, alzavidrios_electricos = ?, asiento_memoria = ?, control_crucero = ?, volante_regulable = ?, caja_cd = ?, radio_cd = ?, cuatro_por_cuatro = ?, computador_abordo = ?, cierre_centralizado = ?, asiento_electrico = ?, asiento_termico = ?, radio_cassette = ?, radio_am_fm = ?, tapiz_cuero = ?, espejos_ext_electricos = ?, llantas_aleacion = ?, neblineros_delanteros = ?, neblineros_traseros = ?, techo_electrico = ?, techo_manual = ?, limpiavidrios_trasero = ?, vidrios_polarizados = ?, luces_xenon = ? WHERE id_auto=?";
+		var deleteStatement = "DELETE FROM auto WHERE id_auto = ?";
+		var dropStatement = "DROP TABLE auto";
+		var db = openDatabase("autos", "1.0", "auto", 11 * 2048 * 2048);  // Open SQLite Database
+		var dataset;
+		var DataType;
+
+	 function initDatabase()  // Function Call When Page is ready.
+
+	{
+
+		try {
+				if (!window.openDatabase)  // Check browser is supported SQLite or not.
+				{
+					alert('Databases are not supported in this browser.');
+				}
+				else 
+				{
+					createTable();  // If supported then call Function for create table in SQLite
+				}
+			}
+
+		catch (e) {
+
+			if (e == 2) {
+
+				// Version number mismatch.
+
+				console.log("Invalid database version.");
+
+			} else 
+			{
+				console.log("Unknown error " + e + ".");
+			}
+
+			return;
+
+		}
+
+	}
+
+	function createTable()  // Function for Create Table in SQLite.
+	{
+		db.transaction(function (tx) { tx.executeSql(createStatement, [], appendRecords, onError); });
+	}
+	//$(#'blabla').focus();
+
+	function insertRecord() // Get value from Input and insert record . Function Call when Save/Submit Button Click.
+
+	{		
+			//caracteristicas generales
+			var marca_temp = $("#marca").val();
+			var modelo_temp = $("#modelo").val();
+			var version_temp = $('input:text[id=version]').val();
+			var motor_temp = $('input:text[id=motor]').val();
+			var transmision_temp = $("#transmision").val();
+			var combustible_temp = $("#combustible").val();
+			var segmento_temp = $("#segmento").val();
+			var puertas_temp = $("#puertas").val();
+			var direccion_temp = $("#direccion").val();
+			//caracteristicas particulares
+			var precio_temp = $('input:text[id=precio]').val();
+			var kilometraje_temp = $('input:text[id=kilometraje]').val();
+			var color_temp = $("#color").val();
+			var condicion_temp = $("#condicion").val();
+			var patente_temp = $('input:text[id=patente]').val();
+			var moneda_temp = $("#moneda").val();
+			var ano_temp = $("#ano").val();
+			var otrocolor_temp = $('input:text[id=otrocolor]').val();
+			var dueno_temp = $("#dueno").val();
+			//equipamiento, seguridad
+			var airbag_conductor_temp = $("input[name='airbag_conductor']:checked").val();
+			var airbag_copiloto_temp = $("input[name='airbag_copiloto']:checked").val();
+			var airbag_laterales_temp = $("input[name='airbag_laterales']:checked").val();
+			var airbag_pasajero_temp = $("input[name='airbag_pasajero']:checked").val();
+			var asiento_ninos_temp = $("input[name='asiento_ninos']:checked").val();
+			var alarma_temp = $("input[name='alarma']:checked").val();
+			var apoya_cabeza_tr_temp = $("input[name='apoya_cabeza_tr']:checked").val();
+			var control_traccion_temp = $("input[name='control_traccion']:checked").val();
+			var esp_temp = $("input[name='esp']:checked").val();
+			var frenos_disco_tr_temp = $("input[name='frenos_disco_tr']:checked").val();
+			var llave_codificada_temp = $("input[name='llave_codificada']:checked").val();
+			var tuerca_seguridad_temp = $("input[name='tuerca_seguridad']:checked").val();
+			var sensor_lluvia_temp = $("input[name='sensor_lluvia']:checked").val();
+			var frenos_abs_temp = $("input[name='frenos_abs']:checked").val();
+			var repartidor_fuerza_temp = $("input[name='repartidor_fuerza']:checked").val();
+			//equipamiento, confort
+			var aire_acondicionado_temp = $("input[name='aire_acondicionado']:checked").val();
+			var climatizador_temp = $("input[name='climatizador']:checked").val();
+			var alzavidrios_electricos_temp = $("input[name='alzavidrios_electricos']:checked").val();
+			var asiento_memoria_temp = $("input[name='asiento_memoria']:checked").val();
+			var control_crucero_temp = $("input[name='control_crucero']:checked").val();
+			var volante_regulable_temp = $("input[name='volante_regulable']:checked").val();
+			var caja_cd_temp = $("input[name='caja_cd']:checked").val();
+			var radio_cd_temp = $("input[name='radio_cd']:checked").val();
+			var cuatro_por_cuatro_temp = $("input[name='cuatro_por_cuatro']:checked").val();
+			var computador_abordo_temp = $("input[name='computador_abordo']:checked").val();
+			var cierre_centralizado_temp = $("input[name='cierre_centralizado']:checked").val();
+			var asiento_electrico_temp = $("input[name='cuatro_por_cuatro']:checked").val();
+			var asiento_termico_temp = $("input[name='asiento_termico']:checked").val();
+			var radio_cassette_temp = $("input[name='radio_cassette']:checked").val();
+			var radio_am_fm_temp = $("input[name='radio_am_fm']:checked").val();
+			var tapiz_cuero_temp = $("input[name='tapiz_cuero']:checked").val();
+			//equipamiento, exterior
+			var espejos_ext_electricos_temp = $("input[name='espejos_ext_electricos']:checked").val();
+			var llantas_aleacion_temp = $("input[name='llantas_aleacion']:checked").val();
+			var neblineros_delanteros_temp = $("input[name='neblineros_delanteros']:checked").val();
+			var neblineros_traseros_temp = $("input[name='neblineros_traseros']:checked").val();
+			var techo_electrico_temp = $("input[name='techo_electrico']:checked").val();
+			var techo_manual_temp = $("input[name='techo_manual']:checked").val();
+			var limpiavidrios_trasero_temp = $("input[name='limpiavidrios_trasero']:checked").val();
+			var vidrios_polarizados_temp = $("input[name='vidrios_polarizados']:checked").val();
+			var luces_xenon_temp = $("input[name='luces_xenon']:checked").val();
+			
+			if(marca_temp=='')
+			{
+				alert('Debe seleccionar Marca del Auto');
+				setTimeout(function() { document.getElementById('marca').focus();}, 1000);
+				// $("#generales").collapsibleset('refresh');
+				   // $("#expand").click(function() {
+					//$("#set").children(":last").trigger( "expand" );
+				return 0;	
+			}
+			else if(modelo_temp=='')
+			{
+				alert('Debe seleccionar Modelo del Auto');
+				setTimeout(function() { document.getElementById('modelo').focus();}, 1000);
+				return 0;	
+			}
+			else if(combustible_temp=='')
+			{
+				alert('Debe seleccionar Combustible del Auto');
+				setTimeout(function() { document.getElementById('combustible').focus();}, 1000);
+				return 0;	
+			}
+			else if(segmento_temp=='')
+			{
+				alert('Debe seleccionar Segmento del Auto');
+				setTimeout(function() { document.getElementById('segmento').focus();}, 1000);
+				return 0;	
+			}
+			else if(direccion_temp=='')
+			{
+				alert('Debe seleccionar Direcci\xf3n del Auto');
+				setTimeout(function() { document.getElementById('direccion').focus();}, 1000);
+				return 0;	
+			}
+			else if(precio_temp=='')
+			{
+				alert('Debe ingresar Precio del Auto');
+				setTimeout(function() { document.getElementById('precio').focus();}, 1000);
+				return 0;
+			}
+			else if(color_temp=='')
+			{
+				alert('Debe seleccionar Color del Auto');
+				setTimeout(function() { document.getElementById('color').focus();}, 1000);
+				return 0;	
+			}
+			else if(condicion_temp=='')
+			{
+				alert('Debe seleccionar Condici\xf3n del Auto');
+				setTimeout(function() { document.getElementById('condicion').focus();}, 1000);
+				return 0;	
+			}
+			else if(patente_temp=='')
+			{
+				alert('Debe ingresar Patente del Auto');
+				setTimeout(function() { document.getElementById('patente').focus();}, 1000);
+				return 0;
+			}	
+			else if(patente_temp.length != 6) 
+			{  
+				alert("La patente debe contener 6 caracteres"); 
+				setTimeout(function() { document.getElementById('patente').focus();}, 1000);
+				return 0; 
+			}
+			else if(ano_temp=='')
+			{
+				alert('Debe seleccionar A\xf1o del Auto');
+				setTimeout(function() { document.getElementById('ano').focus();}, 1000);
+				return 0;	
+			}
+			else	
+			{
+				db.transaction(function (tx) { tx.executeSql(insertStatement, [marca_temp, modelo_temp, version_temp, motor_temp, transmision_temp, combustible_temp, segmento_temp, puertas_temp, direccion_temp, precio_temp, kilometraje_temp, color_temp, condicion_temp, patente_temp, moneda_temp, ano_temp, otrocolor_temp, dueno_temp, airbag_conductor_temp, airbag_copiloto_temp, airbag_laterales_temp, airbag_pasajero_temp, asiento_ninos_temp, alarma_temp, apoya_cabeza_tr_temp, control_traccion_temp, esp_temp,frenos_disco_tr_temp, llave_codificada_temp, tuerca_seguridad_temp, sensor_lluvia_temp, frenos_abs_temp, repartidor_fuerza_temp, aire_acondicionado_temp, climatizador_temp, alzavidrios_electricos_temp, asiento_memoria_temp, control_crucero_temp, volante_regulable_temp, caja_cd_temp, radio_cd_temp, cuatro_por_cuatro_temp, computador_abordo_temp, cierre_centralizado_temp, asiento_electrico_temp,  asiento_termico_temp, radio_cassette_temp, radio_am_fm_temp, tapiz_cuero_temp, espejos_ext_electricos_temp, llantas_aleacion_temp, neblineros_delanteros_temp, neblineros_traseros_temp, techo_electrico_temp, techo_manual_temp, limpiavidrios_trasero_temp, vidrios_polarizados_temp, luces_xenon_temp], loadAndReset2(), onError); });
+			}
+
+			//tx.executeSql(SQL Query Statement,[ Parameters ] , Sucess Result Handler Function, Error Result Handler Function );
+
+	}
+
+		function deleteRecord(id) // Get id of record . Function Call when Delete Button Click..
+
+		{
+
+			var iddelete = id.toString();
+
+			db.transaction(function (tx) { tx.executeSql(deleteStatement, [id], appendRecords, onError); alert("Delete Sucessfully"); });
+//showRecords
+			resetForm();
+			$("#fichas_panel").trigger("updatelayout");
+			 //$("#lista_panel").listview().trigger("create");
+			 // $( "#divList" ).append( "<ul data-role='listview' data-inset='true'><li>Test</li></ul>" ).listview().trigger("create");
+			$("#lista_panel").listview("refresh");
+		}
+		
+		
+
+		function updateRecord() // Get id of record . Function Call when Delete Button Click..
+		{	
+			var marca_update = $("#marca").val();
+			var modelo_update = $("#modelo").val();
+			var version_update = $('input:text[id=version]').val().toString();
+			var motor_update = $('input:text[id=motor]').val().toString();
+			var transmision_update = $("#transmision").val();
+			var combustible_update = $("#combustible").val();
+			var segmento_update = $("#segmento").val();
+			var puertas_update = $("#puertas").val();
+			var direccion_update = $("#direccion").val();
+			
+			var precio_update = $('input:text[id=precio]').val().toString();
+			var kilometraje_update = $('input:text[id=kilometraje]').val();
+			var color_update = $("#color").val();
+			var condicion_update = $("#condicion").val();
+			var patente_update = $('input:text[id=patente]').val().toString();
+			var moneda_update = $("#moneda").val();
+			var ano_update = $("#ano").val();
+			var otrocolor_update = $('input:text[id=otrocolor]').val().toString();
+			var dueno_update = $("#dueno").val();
+			
+			var airbag_conductor_update = $("input[name='airbag_conductor']:checked").val();
+			var airbag_conductor_update = $("input[name='airbag_copiloto']:checked").val();
+			var airbag_laterales_update = $("input[name='airbag_laterales']:checked").val();
+			var airbag_pasajero_update = $("input[name='airbag_pasajero']:checked").val();
+			var asiento_ninos_update = $("input[name='asiento_ninos']:checked").val();
+			var alarma_update = $("input[name='alarma']:checked").val();
+			var apoya_cabeza_tr_update = $("input[name='apoya_cabeza_tr']:checked").val();
+			var control_traccion_update = $("input[name='control_traccion']:checked").val();
+			var esp_update = $("input[name='esp']:checked").val();
+			var frenos_disco_tr_update = $("input[name='frenos_disco_tr']:checked").val();
+			var llave_codificada_update = $("input[name='llave_codificada']:checked").val();
+			var tuerca_seguridad_update = $("input[name='tuerca_seguridad']:checked").val();
+			var sensor_lluvia_update = $("input[name='sensor_lluvia']:checked").val();
+			var frenos_abs_update = $("input[name='frenos_abs']:checked").val();
+			var repartidor_fuerza_update = $("input[name='repartidor_fuerza']:checked").val();
+			
+			var aire_acondicionado_update = $("input[name='aire_acondicionado']:checked").val();
+			var climatizador_update = $("input[name='climatizador']:checked").val();
+			var alzavidrios_electricos_update = $("input[name='alzavidrios_electricos']:checked").val();
+			var asiento_memoria_update = $("input[name='asiento_memoria']:checked").val();
+			var control_crucero_update = $("input[name='control_crucero']:checked").val();
+			var volante_regulable_update = $("input[name='volante_regulable']:checked").val();
+			var caja_cd_update = $("input[name='caja_cd']:checked").val();
+			var radio_cd_update = $("input[name='radio_cd']:checked").val();
+			var cuatro_por_cuatro_update = $("input[name='cuatro_por_cuatro']:checked").val();
+			var computador_abordo_update = $("input[name='computador_abordo']:checked").val();
+			var cierre_centralizado_update = $("input[name='cierre_centralizado']:checked").val();
+			var asiento_electrico_update = $("input[name='cuatro_por_cuatro']:checked").val();
+			var radio_cassette_update = $("input[name='radio_cassette']:checked").val();
+			var radio_am_fm_update = $("input[name='radio_am_fm']:checked").val();
+			var tapiz_cuero_update = $("input[name='tapiz_cuero']:checked").val();
+			
+			var espejos_ext_electricos_update = $("input[name='espejos_ext_electricos']:checked").val();
+			var llantas_aleacion_update = $("input[name='llantas_aleacion']:checked").val();
+			var neblineros_delanteros_update = $("input[name='neblineros_delanteros']:checked").val();
+			var neblineros_traseros_update = $("input[name='neblineros_traseros']:checked").val();
+			var techo_electrico_update = $("input[name='techo_electrico']:checked").val();
+			var techo_manual_update = $("input[name='techo_manual']:checked").val();
+			var limpiavidrios_trasero_update = $("input[name='limpiavidrios_trasero']:checked").val();
+			var vidrios_polarizados_update = $("input[name='vidrios_polarizados']:checked").val();
+			var luces_xenon_update = $("input[name='luces_xenon']:checked").val();
+			
+			var id_auto_update = $("#id").val();
+			
+			if(marca_update=='')
+			{
+				alert('Debe seleccionar Marca del Auto');
+				marca_temp.focus();
+				return 0;	
+			}
+			else if(modelo_update=='')
+			{
+				alert('Debe seleccionar Modelo del Auto');
+				$("modelo").focus();
+				return 0;	
+			}
+			else if(combustible_update=='')
+			{
+				alert('Debe seleccionar Combustible del Auto');
+				$("combustible").focus();
+				return 0;	
+			}
+			else if(segmento_update=='')
+			{
+				alert('Debe seleccionar Segmento del Auto');
+				$("modelo").focus();
+				return 0;	
+			}
+			else if(direccion_update=='')
+			{
+				alert('Debe seleccionar Direcci\xf3n del Auto');
+				$("modelo").focus();
+				return 0;	
+			}
+			else if(precio_update=='')
+			{
+				alert('Debe ingresar Precio del Auto');
+				precio_temp.focus();
+				return 0;
+			}
+			else if(color_update=='')
+			{
+				alert('Debe seleccionar Color del Auto');
+				$("color").focus();
+				return 0;	
+			}
+			else if(condicion_update=='')
+			{
+				alert('Debe seleccionar Condici\xf3n del Auto');
+				$("condicion").focus();
+				return 0;	
+			}
+			else if(patente_update=='')
+			{
+				alert('Debe ingresar Patente del Auto');
+				patente_temp.focus();
+				return 0;
+			}	
+			else if(patente_temp.length != 6) 
+			{  
+				alert("La patente debe contener 6 caracteres"); 
+				patente_temp.focus();
+				return false; 
+			}
+			else if(ano_update=='')
+			{
+				alert('Debe seleccionar A\xf1o del Auto');
+				$("ano").focus();
+				return 0;	
+			}
+			else	
+			{
+
+				db.transaction(function (tx) { tx.executeSql(updateStatement, [Number(marca_update), Number(modelo_update), version, motor,  Number(transmision_update), Number(combustible_update), Number(segmento_update), Number(puertas_update), Number(direccion_update), precio_update, kilometraje_update, Number(color_update), Number(condicion_update), patente_update, Number(moneda_update), Number(ano_update), otrocolor_update, Number(dueno_update), airbag_conductor_update, airbag_laterales_update, airbag_pasajero_update, asiento_ninos_update, alarma_update, apoya_cabeza_tr_update, control_traccion_update, esp_update, frenos_disco_tr_update, llave_codificada_update, tuerca_seguridad_update, sensor_lluvia_update, frenos_abs_update, repartidor_fuerza_update, aire_acondicionado_update, climatizador_update, alzavidrios_electricos_update, asiento_memoria_update, control_crucero_update, volante_regulable_update, caja_cd_update, radio_cd_update, computador_abordo_update, cierre_centralizado_update, asiento_electrico_update, asiento_termico_update, radio_cassette_update, radio_am_fm_update, tapiz_cuero_update, tapiz_cuero_update, espejos_ext_electricos_update, llantas_aleacion_update, neblineros_delanteros_update, neblineros_traseros_update, techo_electrico_update, techo_manual_update, limpiavidrios_trasero_update, vidrios_polarizados_update, luces_xenon_update, Number(id_auto_update)], loadAndReset2, onError); });
+			}
+		}
+
+		function dropTable() // Function Call when Drop Button Click.. Talbe will be dropped from database.
+		{
+			db.transaction(function (tx) { tx.executeSql(dropStatement, [], appendRecords, onError); });
+			resetForm();
+			initDatabase();
+			//showRecords
+		}
+
+		function loadRecord(i) // Function for display records which are retrived from database.
+		{
+			var item = dataset.item(i);
+			
+			$("#marca").val(item['marca']).selectmenu('refresh');
+			$("#modelo").val(item['modelo']).selectmenu('refresh');
+			$("#version").val((item['version']).toString());
+			$("#motor").val((item['motor']).toString());
+			$("#transmision").val(item['transmision']).selectmenu('refresh');
+			$("#combustible").val(item['combustible']).selectmenu('refresh');
+			$("#segmento").val(item['segmento']).selectmenu('refresh');
+			$("#puertas").val((item['puertas']).toString());
+			$("#direccion").val(item['direccion']).selectmenu('refresh');
+						
+			$("#precio").val((item['precio']).toString());
+			$("#kilometraje").val((item['kilometraje']).toString());
+			$("#color").val(item['color']).selectmenu('refresh');
+			$("#condicion").val(item['condicion']).selectmenu('refresh');
+			$("#patente").val((item['patente']).toString());
+			$("#moneda").val(item['moneda']).selectmenu('refresh');
+			$("#ano").val(item['ano']).selectmenu('refresh');
+			$("#otrocolor").val((item['otrocolor']).toString());
+			$("#dueno").val(item['dueno']).selectmenu('refresh');
+			
+			$('input[name="airbag_conductor"]')[item['airbag_conductor']].checked = true;
+			$('input[name="airbag_conductor"]').checkboxradio("refresh");
+			$('input[name="airbag_copiloto"]')[item['airbag_copiloto']].checked = true;
+			$('input[name="airbag_copiloto"]').checkboxradio("refresh");
+			$('input[name="airbag_laterales"]')[item['airbag_laterales']].checked = true;
+			$('input[name="airbag_laterales"]').checkboxradio("refresh");
+			$('input[name="airbag_pasajero"]')[item['airbag_pasajero']].checked = true;
+			$('input[name="airbag_pasajero"]').checkboxradio("refresh");
+			$('input[name="asiento_ninos"]')[item['asiento_ninos']].checked = true;
+			$('input[name="asiento_ninos"]').checkboxradio("refresh");
+			$('input[name="alarma"]')[item['alarma']].checked = true;
+			$('input[name="alarma"]').checkboxradio("refresh");
+			$('input[name="apoya_cabeza_tr"]')[item['apoya_cabeza_tr']].checked = true;
+			$('input[name="apoya_cabeza_tr"]').checkboxradio("refresh");
+			$('input[name="control_traccion"]')[item['control_traccion']].checked = true;
+			$('input[name="control_traccion"]').checkboxradio("refresh");
+			$('input[name="esp"]')[item['esp']].checked = true;
+			$('input[name="esp"]').checkboxradio("refresh");
+			$('input[name="frenos_disco_tr"]')[item['frenos_disco_tr']].checked = true;
+			$('input[name="frenos_disco_tr"]').checkboxradio("refresh");
+			$('input[name="llave_codificada"]')[item['llave_codificada']].checked = true;
+			$('input[name="llave_codificada"]').checkboxradio("refresh");
+			$('input[name="tuerca_seguridad"]')[item['tuerca_seguridad']].checked = true;
+			$('input[name="tuerca_seguridad"]').checkboxradio("refresh");
+			$('input[name="sensor_lluvia"]')[item['sensor_lluvia']].checked = true;
+			$('input[name="sensor_lluvia"]').checkboxradio("refresh");
+			$('input[name="frenos_abs"]')[item['frenos_abs']].checked = true;
+			$('input[name="frenos_abs"]').checkboxradio("refresh");
+			$('input[name="repartidor_fuerza"]')[item['repartidor_fuerza']].checked = true;
+			$('input[name="repartidor_fuerza"]').checkboxradio("refresh");
+			
+			$('input[name="aire_acondicionado"]')[item['aire_acondicionado']].checked = true;
+			$('input[name="aire_acondicionado"]').checkboxradio("refresh");
+			$('input[name="climatizador"]')[item['climatizador']].checked = true;
+			$('input[name="climatizador"]').checkboxradio("refresh");
+			$('input[name="alzavidrios_electricos"]')[item['alzavidrios_electricos']].checked = true;
+			$('input[name="alzavidrios_electricos"]').checkboxradio("refresh");
+			$('input[name="asiento_memoria"]')[item['asiento_memoria']].checked = true;
+			$('input[name="asiento_memoria"]').checkboxradio("refresh");
+			$('input[name="control_crucero"]')[item['control_crucero']].checked = true;
+			$('input[name="control_crucero"]').checkboxradio("refresh");
+			$('input[name="volante_regulable"]')[item['volante_regulable']].checked = true;
+			$('input[name="volante_regulable"]').checkboxradio("refresh");
+			$('input[name="caja_cd"]')[item['caja_cd']].checked = true;
+			$('input[name="caja_cd"]').checkboxradio("refresh");
+			$('input[name="radio_cd"]')[item['radio_cd']].checked = true;
+			$('input[name="radio_cd"]').checkboxradio("refresh");
+			$('input[name="cuatro_por_cuatro"]')[item['cuatro_por_cuatro']].checked = true;
+			$('input[name="cuatro_por_cuatro"]').checkboxradio("refresh");
+			$('input[name="computador_abordo"]')[item['computador_abordo']].checked = true;
+			$('input[name="computador_abordo"]').checkboxradio("refresh");
+			$('input[name="cierre_centralizado"]')[item['cierre_centralizado']].checked = true;
+			$('input[name="cierre_centralizado"]').checkboxradio("refresh");
+			$('input[name="asiento_electrico"]')[item['asiento_electrico']].checked = true;
+			$('input[name="asiento_electrico"]').checkboxradio("refresh");
+			$('input[name="asiento_termico"]')[item['asiento_termico']].checked = true;
+			$('input[name="asiento_termico"]').checkboxradio("refresh");
+			$('input[name="radio_cassette"]')[item['radio_cassette']].checked = true;
+			$('input[name="radio_cassette"]').checkboxradio("refresh");
+			$('input[name="radio_am_fm"]')[item['radio_am_fm']].checked = true;
+			$('input[name="radio_am_fm"]').checkboxradio("refresh");
+			$('input[name="tapiz_cuero"]')[item['tapiz_cuero']].checked = true;
+			$('input[name="tapiz_cuero"]').checkboxradio("refresh");
+			
+			$('input[name="espejos_ext_electricos"]')[item['espejos_ext_electricos']].checked = true;
+			$('input[name="espejos_ext_electricos"]').checkboxradio("refresh");
+			$('input[name="llantas_aleacion"]')[item['llantas_aleacion']].checked = true;
+			$('input[name="llantas_aleacion"]').checkboxradio("refresh");
+			$('input[name="neblineros_delanteros"]')[item['neblineros_delanteros']].checked = true;
+			$('input[name="neblineros_delanteros"]').checkboxradio("refresh");
+			$('input[name="neblineros_traseros"]')[item['neblineros_traseros']].checked = true;
+			$('input[name="neblineros_traseros"]').checkboxradio("refresh");
+			$('input[name="techo_electrico"]')[item['techo_electrico']].checked = true;
+			$('input[name="techo_electrico"]').checkboxradio("refresh");
+			$('input[name="techo_manual"]')[item['techo_manual']].checked = true;
+			$('input[name="techo_manual"]').checkboxradio("refresh");
+			$('input[name="limpiavidrios_trasero"]')[item['limpiavidrios_trasero']].checked = true;
+			$('input[name="limpiavidrios_trasero"]').checkboxradio("refresh");
+			$('input[name="vidrios_polarizados"]')[item['vidrios_polarizados']].checked = true;
+			$('input[name="vidrios_polarizados"]').checkboxradio("refresh");
+			$('input[name="luces_xenon"]')[item['luces_xenon']].checked = true;
+			$('input[name="luces_xenon"]').checkboxradio("refresh");
+				
+			$("#id").val((item['id_auto']).toString());
+		}
+		function resetForm() 
+		{
+			document.getElementById("formulario").reset();
+		}
+		function loadAndReset() //Function for Load and Reset...
+		{
+			resetForm();
+			showRecords();
+		}
+		function loadAndReset2() //Function for Load and Append...
+		{
+			resetForm();
+			//showRecords();
+			appendRecords();
+			alert('Ficha guardada correctamente');
+		}
+		function onError(tx, error) // Function for Hendeling Error...
+		{
+		alert(error.message);
+		}
+		function showRecords() // Function For Retrive data from Database Display records as list
+		{
+			$("#results").html('')
+			db.transaction(function (tx) {
+				tx.executeSql(selectAllStatement, [], function (tx, result) 
+				{
+					dataset = result.rows;
+					for (var i = 0, item = null; i < dataset.length; i++) 
+					{
+						item = dataset.item(i);
+						var linkeditdelete = '<li>' + item['marca'] + ' , ' + item['modelo'] + ' , '+ item['version'] + ' , ' + item['motor'] + ' , ' + item['transmision'] + ' , '+  item['combustible'] + ' , ' + item['segmento'] + ' , ' + item['puertas'] + ' , ' + item['direccion'] + ' , ' + item['precio'] + ' , ' + item['kilometraje'] + ' , ' + item['color'] + ' , ' + item['condicion'] + ' , ' + item['patente'] + ' , ' + item['moneda'] + ' , ' + item['ano'] + ' , ' + item['otrocolor'] + ' , ' + item['dueno'] + ' , ' + item['id_auto'] + ' , ' + item['airbag_conductor'] + ' , ' + item['airbag_copiloto'] + ' , ' + item['airbag_laterales'] + ' , ' + item['airbag_pasajero'] + ' , ' + item['asiento_ninos'] + ' , ' + item['alarma'] + '  , ' + item['apoya_cabeza_tr'] + ' , ' + item['control_traccion'] + ' , ' + item['esp'] + ' , ' + item['frenos_disco_tr'] + ' , ' + item['llave_codificada'] + ' , ' + item['tuerca_seguridad'] + ' , ' + item['sensor_lluvia'] + ' , ' + item['frenos_abs'] + ' , ' + item['repartidor_fuerza'] + ' , ' + item['aire_acondicionado'] + ' , ' + item['climatizador'] + ' , ' + item['alzavidrios_electricos'] + '  , ' + item['asiento_memoria'] + ' , ' + item['control_crucero'] + ' , ' + item['volante_regulable'] + ' , ' + item['caja_cd'] + ' , ' + item['radio_cd'] + ' , ' + item['cuatro_por_cuatro'] + ' , ' + item['computador_abordo'] + ' , ' + item['cierre_centralizado'] + ' , ' + item['asiento_electrico'] + ' , ' + item['asiento_termico'] + ' , ' + item['radio_cassette'] + ' , ' + item['radio_am_fm'] + ' , ' + item['tapiz_cuero'] + ' , ' + item['espejos_ext_electricos'] + ' , ' + item['llantas_aleacion'] + ' , ' + item['neblineros_delanteros'] + ' , ' + item['neblineros_traseros'] + ' , ' + item['techo_electrico'] + ' , ' + item['techo_manual'] + ' , ' + item['limpiavidrios_trasero'] + ' , ' + item['vidrios_polarizados'] + ' , ' + item['luces_xenon'] + '  ' + '<a href="#" onclick="loadRecord(' + i + ');">edit</a>' + '    ' + '<a href="#" onclick="deleteRecord(' + item['id_auto'] + ');">delete</a></li>';
+						$("#results").append(linkeditdelete);
+					} 	
+				});
+			});
+		}
+		
+		function appendRecords() // Function For Retrive data from Database Display records as list
+		{
+
+			$("#lista_panel").html('');
+
+			db.transaction(function (tx) {
+
+				tx.executeSql(selectAllStatement, [], function (tx, result) {
+
+					dataset = result.rows;
+
+					for (var i = 0, item = null; i < dataset.length; i++) {
+
+						item = dataset.item(i);
+						
+						/*var fichaAuto = '<li>' + item['patente'] + '  ' + '<a href="#" data-iconshadow="false" data-theme="b" data-icon="edit" data-iconpos="notext" onclick="loadRecord(' + i + ');"></a>' + '</li>';*/
+					
+						
+						var fichaAuto = '<li>' + '<a href="#" onclick="loadRecord(' + i + ');">'+ item['patente'] +'</a>' + '    ' +  '<a href="#" data-iconshadow="false" data-theme="d" data-icon="delete" data-iconpos="notext"  onclick="deleteRecord(' + item['id_auto'] + ');">delete</a></li>';
+
+						$("#lista_panel").append(fichaAuto);
+						//$("#lista_panel").trigger("create");
+						//muestra ficha
+						$("#lista_panel").listview("refresh");  
+						$("#fichas_panel").trigger("updatelayout");
+						resetForm();
+						
+					}
+
+				});
+
+			});
+
+		}
+		
+		//------- Estados de Conexion -------//	
+			function checkConnection() {
+				var networkState = navigator.network.connection.type;
+				var states = {};
+				states[Connection.UNKNOWN]  = 'Conexión desconocida';
+				states[Connection.ETHERNET] = 'Conexión ethernet';
+				states[Connection.WIFI]     = 'Conexión WiFi';
+				states[Connection.CELL_2G]  = 'Conexión movil 2G';
+				states[Connection.CELL_3G]  = 'Conexión movil 3G';
+				states[Connection.CELL_4G]  = 'Conexión movil 4G';
+				states[Connection.NONE]     = 'Sin conexión';
+			   return(states[networkState]);	
+			   alert('Tipo de conexión: ' + states[networkState]);
+			}
+
+		$(document).ready(function () // Call function when page is ready for load..
+
+		{
+		;
+
+			$("body").fadeIn(2000); // Fede In Effect when Page Load..
+
+			initDatabase();
+
+			/*$("#submitButton").click(insertRecord);  // Register Event Listener when button click.
+
+			$("#btnUpdate").click(updateRecord);
+
+			$("#btnReset").click(resetForm);
+
+			$("#btnDrop").click(dropTable);*/
+
+		});	
+		</script>
+		<script type="text/javascript" charset="utf-8">
+
+			document.addEventListener("deviceready", onDeviceReady, false);
+
+			function onDeviceReady() {
+			}
+
+			function showAlert() {
+				navigator.notification.alert(
+					'You are the winner!',  // message
+					'Game Over',            // title
+					'Done'                  // buttonName
+				);
+			}
+
+			function playBeep() {
+				navigator.notification.beep(3);
+			}
+
+			function vibrate() {
+				navigator.notification.vibrate(2000);
+			}
+
+				
+				
+		</script>
+		
+		
+	</head>
+	<body>
+		<div data-role="page" id="concesionarios">
+			<div data-role="header">
+				<h3>BackOffice - Carga Ficha Autom&oacute;vil</h3>
+				<div class="ui-btn-right">
+				<input type="button" data-theme="a" onclick="logout();" value="LogOut"/>
+				</div>
+			</div>
+			<div data-role="content">
+						<ul data-role="listview" data-inset="true" data-dividertheme="a" data-filter="true">
+							<li data-role="list-divider">CONCESIONARIOS</li>
+							<li data-role="list-divider">Bruno Fritsch<p align="right">Sucursales</p><span class="ui-li-count">3</span></li>
+							<li><a href="#ficha"><img src="img_con/br_fritsch.png" width="100" height="100"/>
+									<h2>Bruno Fritsch</h2>
+									<p><strong>CAMINO A MELIPILLA 9160 CERRILLOS</strong></p>
+									<p>Tel&eacute;fono 28102820</p>         
+							</a></li>
+							<li><a href="#ficha"><img src="img_con/br_fritsch.png" width="100" height="100"/>
+									<h2>Bruno Fritsch</h2>
+									<p><strong>AVENIDA VICUNA MACKENNA 7781 LA FLORIDA</strong></p>
+									<p>Tel&eacute;fono 28102886</p>         
+							</a></li>
+							<li><a href="#ficha"><img src="img_con/br_fritsch.png" width="100" height="100"/>
+									<h2>Bruno Fritsch</h2>
+									<p><strong>PADRE HURTADO NORTE 77 LAS CONDES</strong></p>
+									<p>Tel&eacute;fono 23524648</p>         
+							</a></li>
+					
+							<li data-role="list-divider">Guillermo Morales<p align="right">Sucursales</p><span class="ui-li-count">2</span></li>
+							<li><a href="#ficha"><img src="img_con/g_morales.png" width="100" height="100"/>
+									<h2>Guillermo Morales</h2>
+									<p><strong>AVENIDA FRANCISCO BILBAO 2589 PROVIDENCIA</strong></p>
+									<p>Tel&eacute;fono 28999070</p>         
+							</a></li>
+							<li><a href="#ficha"><img src="img_con/g_morales.png" width="100" height="100"/>
+									<h2>Guillermo Morales</h2>
+									<p><strong>AVENIDA VITACURA 5373 VITACURA</strong></p>
+									<p>Tel&eacute;fono 28999039</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Melhuish<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/melhuish.png" width="100" height="100"/>
+									<h2>Melhuish</h2>
+									<p><strong>AVENIDA TOM&Aacute;S MORO 769 LAS CONDES</strong></p>
+									<p>Tel&eacute;fono 29256569 / 29256583 </p>         
+							</a></li>
+							
+							<li data-role="list-divider">Portillo<p align="right">Sucursales</p><span class="ui-li-count">2</span></li>
+							<li><a href="#ficha"><img src="img_con/portillo.png" width="100" height="100"/>
+									<h2>Portillo</h2>
+									<p><strong>AVENIDA VITACURA 5555 VITACURA</strong></p>
+									<p>Tel&eacute;fono 27505547 </p>         
+							</a></li>
+							<li><a href="#ficha"><img src="img_con/portillo.png" width="100" height="100"/>
+									<h2>Portillo</h2>
+									<p><strong>PADRE HURTADO NORTE 1246 VITACURA</strong></p>
+									<p>Tel&eacute;fono 27505420 </p>         
+							</a></li>
+							
+							<li data-role="list-divider">Carmeister<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/gildemeister.png" width="100" height="100"/>
+									<h2>Carmeister</h2>
+									<p><strong>AVENIDA AM&Eacute;RICO VESPUCIO 570 LAS CONDES</strong></p>
+									<p>Tel&eacute;fono 25965402</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Valenzuela Delarze<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/valenzuela.png" width="100" height="100"/>
+									<h2>Valenzuela Delarze</h2>
+									<p><strong>AVENIDA MANUEL MONTT 1283 PROVIDENCIA</strong></p>
+									<p>Tel&eacute;fono 28404003</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Automotora Difor<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/difor.png" width="100" height="100"/>
+									<h2>Automotora Difor</h2>
+									<p><strong>AVENIDA LAS CONDES 8744 LAS CONDES</strong></p>
+									<p>Tel&eacute;fono 23276212 </p>         
+							</a></li>
+							
+							
+							<li data-role="list-divider">Parque Automotriz<p align="right">Sucursales</p><span class="ui-li-count">2</span></li>
+							<li><a href="#ficha"><img src="img_con/parque_aut.png" width="100" height="100"/>
+									<h2>La Dehesa</h2>
+									<p><strong>AVENIDA LA DEHESA 1993 LO BARNECHEA</strong></p>
+									<p>Tel&eacute;fono 28371533 - 28371570</p>         
+							</a></li>
+							<li><a href="#ficha"><img src="img_con/parque_aut.png" width="100" height="100"/>
+									<h2>Alfa Romeo</h2>
+									<p><strong>AVENIDA VITACURA 8191 VITACURA</strong></p>
+									<p>Tel&eacute;fono 28371903</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Coseche<p align="right">Sucursales</p><span class="ui-li-count">2</span></li>
+							<li><a href="#ficha"><img src="img_con/coseche.png" width="100" height="100"/>
+									<h2>Coseche Rancagua</h2>
+									<p><strong>ALAMEDA 27 RANCAGUA</strong></p>
+									<p>Tel&eacute;fono 72-741143 </p>         
+							</a></li>
+							<li><a href="#ficha"><img src="img_con/coseche.png" width="100" height="100"/>
+									<h2>Coseche La Dehesa</h2>
+									<p><strong>AVENIDA LA DEHESA 1961 LO BARNECHEA</strong></p>
+									<p>Tel&eacute;fono 25953910</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Automotriz Piamonte<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/piamonte.png" width="100" height="100"/>
+									<h2>Automotriz Piamonte</h2>
+									<p><strong>AVENIDA IRARRAZAVAL 3350 &Ntilde;U&Ntilde;OA</strong></p>
+									<p>Tel&eacute;fono 27510244</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Kaufmann S.A<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/kaufmann.png" width="100" height="100"/>
+									<h2>Kaufmann S.A</h2>
+									<p><strong>AVENIDA LAS CONDES 12250 LAS CONDES</strong></p>
+									<p>Tel&eacute;fono 27201106</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Ventas Usados<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/venta_usados.png" width="100" height="100"/>
+									<h2>Ventas Usados</h2>
+									<p><strong>PANAMERICANA SUR 0 SAN BERNARDO</strong></p>
+									<p>Tel&eacute;fono 26548584</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Peugeot Chile<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/peugeot.png" width="100" height="100"/>
+									<h2>Peugeot Chile</h2>
+									<p><strong>AVENIDA AMERICO VESPUCIO 785 HUECHURABA</strong></p>
+									<p>Tel&eacute;fono 27306437 - (9)7081010</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Dumay S.A<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/dumay.png" width="100" height="100"/>
+									<h2>Dumay S.A</h2>
+									<p><strong>AVENIDA FRANCISCO DE BILBAO 1184 PROVIDENCIA</strong></p>         
+							</a></li>
+							
+							<li data-role="list-divider">JPN Autos<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/jpn.png" width="100" height="100"/>
+									<h2>JPN Autos</h2>
+									<p><strong>AVENIDA KENNEDY 9370 VITACURA</strong></p>
+									<p>Tel&eacute;fono 27991111</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Puig<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/puig.png" width="100" height="100"/>
+									<h2>Puig</h2>
+									<p><strong>AVENIDA TABANCURA 1375 VITACURA</strong></p>
+									<p>Tel&eacute;fono (56-2) 3461414 </p>         
+							</a></li>
+							
+							<li data-role="list-divider">La Foresta<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/laforesta.png" width="100" height="100"/>
+									<h2>Puig</h2>
+									<p><strong>AVENIDA VITACURA 5540 VITACURA</strong></p>
+									<p>Tel&eacute;fono 22478360</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Automotora Explorer<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/a_explorer.png" width="100" height="100"/>
+									<h2>Automotora Explorer</h2>
+									<p><strong>AVENIDA VITACURA 7081 VITACURA</strong></p>
+									<p>Tel&eacute;fono 29338432</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Clasic Motors<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/clasic.png" width="100" height="100"/>
+									<h2>Clasic Motors</h2>
+									<p>Tel&eacute;fono 22201993</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Rosselot<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/rosselot.png" width="100" height="100"/>
+									<h2>Rosselot </h2>
+									<p><strong>AVENIDA IRARRAZAVAL 1235 &Ntilde;U&Ntilde;OA</strong></p>
+									<p>Tel&eacute;fono 23431127</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Pits Autos<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/pits.png" width="100" height="100"/>
+									<h2>Pits Autos</h2>
+									<p>Tel&eacute;fono 22128475 - 26345916</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Ditec S.A<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/ditec.png" width="100" height="100"/>
+									<h2>Ditec S.A</h2>
+									<p><strong>AVENIDA RA&Uacute;L LABB&Eacute; 12981 LO BARNECHEA</strong></p>
+									<p>Tel&eacute;fono 22173030</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Piretta Automobile<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/piretta.png" width="100" height="100"/>
+									<h2>Piretta Automobile </h2>
+									<p><strong>AVENIDA VITACURA 9518 VITACURA</strong></p>
+									<p>Tel&eacute;fono 77683932</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Battaglia Autom&oacute;viles<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/battaglia.png" width="100" height="100"/>
+									<h2>Battaglia Autom&oacute;viles</h2>
+									<p><strong>AVENIDA TOMAS MORO 640 LAS CONDES</strong></p>
+									<p>Tel&eacute;fono 22463088 / 22463090</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Automotora Miguel Jacob Helo y C&iacute;a. Ltda.<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/miguel_j.png" width="100" height="100"/>
+									<h2>Automotora Miguel Jacob Helo y C&iacute;a. Ltda.</h2>
+									<p><strong>AVENIDA FRANCISCO BILBAO 2626 PROVIDENCIA</strong></p>
+									<p>Tel&eacute;fono 22047033</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Klassik Car<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/klassik.png" width="100" height="100"/>
+									<h2>Klassik Car </h2>
+									<p><strong>AVENIDA VITACURA 8126 VITACURA</strong></p>
+									<p>Tel&eacute;fono 27310500</p>         
+							</a></li>
+							
+							<li data-role="list-divider">Citro&euml;n<p align="right">Sucursales</p><span class="ui-li-count">1</span></li>
+							<li><a href="#ficha"><img src="img_con/citroen.png" width="100" height="100"/>
+									<h2>Citro&euml;n</h2>
+									<p>Tel&eacute;fono 25839001</p>         
+							</a></li>
+						</ul>
+			</div>
+			<div data-role="footer">
+				<h3>BackOffice - Carga Ficha Autom&oacute;vil</h3>
+			</div>	
+		</div>
+		<!-- pagina dos/-->
+		<div data-role="page" id="ficha">
+		<div data-role="panel" id="fichas_panel" data-display="push">
+			<ul data-role="listview" data-divider-theme="a" id="lista_panel2" class="ui-icon-alt">
+				<li data-role="list-divider">Fichas</li>
+			</ul>
+			<p><ul data-role="listview" data-divider-theme="a" id="lista_panel" class="ui-icon-alt">
+			</ul></p>
+		</div><!-- /panel -->
+		
+			<div data-role="header">
+				<div id="sucursal"></div>
+				<a href="#fichas_panel" data-role="button" data-corners="false" data-icon="bars" class="ui-icon-nodisc" data-iconshadow="false" data-iconpos="notext" class="ui-btn-left">Panel</a>
+				<h1>BackOffice - Carga Ficha Autom&oacute;vil</h1>
+				<div class="ui-btn-right">
+					<input type="button" data-corners="false" data-theme="a" onclick="logout();" value="LogOut"/>
+				</div>
+			</div>
+			<div data-role="content"> 
+			<form id="formulario" class="validate" method="post">
+					<fieldset class="ui-grid-b">
+						<div class="ui-block-a"><h4>Ficha veh&iacute;culo</h4></div>
+						<div class="ui-block-b"></div>
+						<div class="ui-block-c"><a href="#" data-role="button" data-corners="false" data-mini="true" data-inline="true" onclick="enviarFicha();" data-theme="e">Enviar Ficha<a/></div>
+					</fieldset>
+											 <!-- /formulario ficha uno -->
+						<div data-role="collapsible-set" data-theme="a" data-content-theme="b" id= "generales">  <!-- /div contenido FICHA UNO -->
+							<p><h5>Los campos marcados con (*) son obligatorios.</h5></p>
+							<div data-role="collapsible">                                        <!-- /caracteristicas Generales ficha uno -->
+								<h3>Caracter&iacute;sticas Generales</h3>
+								<div id="divMarca" data-role="fieldcontain">
+									<label id="marcaLabel" for="marca"><strong>Marca*:</strong></label>		
+									<select  id="marca" name="marca" data-native-menu="false" class="required" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>	
+											<option value="11">Alfa Romeo</option>
+											<option value="12">Audi</option>
+											<option value="13">BMW</option>
+											<option value="14">Chevrolet</option>
+											<option value="15">Chrysler</option>
+											<option value="16">Citroen</option>  
+											<option value="17">Daewoo</option> 
+											<option value="18">Daihatsu</option>								
+									</select>
+								</div>
+							
+								<div id="divModelo" data-role="fieldcontain">
+									<label id="modeloLabel" for="modelo"><strong>Modelo*:</strong></label>		
+									<select  id="modelo" name="modelo" data-native-menu="false" class="required" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>	
+											<option value="298">A1</option>
+											<option value="299">A2</option>
+											<option value="300">A3</option>
+																			
+									</select>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<label for="version"><strong>Versi&oacute;n:</strong></label>
+									<input type="text" id="version" name="version" data-mini="true" />
+								</div>
+								
+								<div data-role="fieldcontain">
+									<label for="motor"><strong>Motor (cc):</strong></label>
+									<input type="text" id="motor" name="motor"  data-mini="true"  onkeypress="ValidaSoloNumeros()" />
+								</div>
+								
+								<div id="divTransmision" data-role="fieldcontain">
+									<label id="transmisionLabel" for="transmision"><strong>Transmisi&oacute;n:</strong></label>		
+									<select  id="transmision" name="transmision" data-native-menu="false"  data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>	
+											<option value="4987">Autom&aacute;tica</option>
+											<option value="4986">Manual</option>
+											<option value="5019">No especificado</option>								
+									</select>
+								</div>
+								
+								<div id="divCombustible" data-role="fieldcontain">
+									<label id="combustibleLabel" for="combustible"><strong>Combustible*:</strong></label>		
+									<select  id="combustible" name="combustible" data-native-menu="false" class="required" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>	
+											<option value="AL">Bencina</option>
+											<option value="AK">Diesel</option>
+											<option value="AZ">El&eacute;ctrico</option>
+											<option value="AZ">Gas</option>
+											<option value="AZ">H&iacute;brido</option> 
+											<option value="AZ">No Especificado</option>
+																			
+									</select>
+								</div>
+								
+								<div id="divSegmento" data-role="fieldcontain">
+									<label id="segmentoLabel" for="combustible"><strong>Segmento*:</strong></label>		
+									<select  id="segmento" name="segmento" data-native-menu="false" class="required" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>	
+											<option value="AL">asdf</option>
+											<option value="AK">bnmk</option>
+											<option value="AZ">okl</option>								
+									</select>
+								</div>
+								
+								<div id="divPuertas" data-role="fieldcontain">
+									<label id="puertasLabel" for="puertas"><strong>Cantidad Puertas:</strong></label>		
+									<select  id="puertas" name="puertas" data-native-menu="false" data-mini="true" data-theme="d">
+											<option value="select-one" data-placeholder="true"></option>
+											<option value="5007">2</option>
+											<option value="5008">3</option>
+											<option value="5009">4</option>  
+											<option value="5010">5</option> 
+											<option value="5017">No Especificado</option>
+									</select>
+								</div>
+								
+								<div id="divDireccion" data-role="fieldcontain">
+									<label id="direccionLabel" for="direccion"><strong>Direcci&oacute;n*:</strong></label>		
+									<select id="direccion" name="direccion" data-native-menu="false" class="required" data-mini="true" data-theme="d"> 
+											<option value="" data-placeholder="true"></option>
+											<option value="5003">Hidr&aacute;ulica</option>
+											<option value="4974">Mec&aacute;nica</option>
+											<option value="5014">No Especificado</option>
+											<option value="4975">Servo Asistida</option>
+									</select>
+								</div>
+														
+							</div> 									<!-- /caracteristicas generales ficha uno-->
+								
+							<div data-role="collapsible" >   		<!-- /caracteristicas particulares ficha uno -->
+								<h3>Caracter&iacute;sticas Particulares</h3>
+								
+								<div data-role="fieldcontain">
+									<label for="precio"><strong>Precio*:</strong></label>
+									<input type="text" id="precio" name="precio" class="required" data-mini="true"  onkeypress="ValidaSoloNumeros()" />
+								</div>
+								
+								<div data-role="fieldcontain">
+									<label for="kilometraje"><strong>Kilometraje:</strong></label>
+									<input type="text" id="kilometraje" name="kilometraje" data-mini="true"  onkeypress="ValidaSoloNumeros()" />
+								</div>
+								
+								
+								<div id="divColor" data-role="fieldcontain">
+									<label id="colorLabel" for="color"><strong>Color*:</strong></label>		
+									<select id="color" name="color" data-native-menu="false" class="required" data-mini="true" data-theme="d"> 
+											<option value="" data-placeholder="true"></option>	
+											<option value="4957">Amarillo</option>
+											<option value="4955">Azul</option>
+											<option value="4967">Beige</option>
+											<option value="4970">Bicolor</option> 
+											<option value="4956">Blanco</option> 
+											<option value="4969">Bronce</option>
+											<option value="4960">Caf&eacute;</option> 
+											<option value="4965">Dorado</option>
+											<option value="4966">Gris</option> 
+											<option value="4961">Morado</option>
+											<option value="4958">Negro</option>
+											<option value="4973">No especificado</option>
+											<option value="4963">Plateado</option>
+											<option value="4953">Rojo</option>
+											<option value="4959">Rosado</option>
+											<option value="4954">Verde</option>								
+									</select>
+								</div>
+								
+								<div id="divCondicion" data-role="fieldcontain">
+									<label id="condicionLabel" for="condicion"><strong>Condici&oacute;n*:</strong></label>		
+									<select id="condicion" name="condicion" data-native-menu="false" class="required" data-mini="true" data-theme="d"> 
+											<option value="" data-placeholder="true"></option>
+											<option value="9">Nuevo</option>
+											<option value="10">Usados</option>
+									</select>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<label for="patente"><strong>Patente*:</strong></label>
+									<input type="text" id="patente" name="patente" class="required" data-mini="true" maxlength="6"  onkeypress="ValidaNumTexto()"/>
+								</div>
+								
+								<div id="divMoneda" data-role="fieldcontain">
+									<label id="monedaLabel" for="moneda"><strong>Moneda:</strong></label>		
+									<select  id="moneda" name="moneda" data-native-menu="false" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>
+											<option value="1">CLP$</option>
+											<option value="2">UF</option>
+											<option value="3">USD$</option>
+									</select>
+								</div>
+								
+								<div id="divYear" data-role="fieldcontain">
+									<label id="anoLabel" for="ano"><strong>A&ntilde;o*:</strong></label>		
+									<select  id="ano" name="ano" data-native-menu="false" class="required" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>
+											<option value="2014">2014</option>
+											<option value="2013">2013</option>
+											<option value="2012">2012</option>									
+									</select>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<label for="otrocolor"><strong>Otro Color:</strong></label>
+									<input type="text" id="otrocolor" name="otrocolor" data-mini="true" onkeypress="ValidaSoloTexto()"/>
+								</div>
+								
+								<div id="divDueno" data-role="fieldcontain">
+									<label id="duenoLabel" for="dueno"><strong>Primer Due&ntilde;o:</strong></label>		
+									<select  id="dueno" name="dueno" data-native-menu="false" data-mini="true" data-theme="d">
+											<option value="" data-placeholder="true"></option>
+											<option value="AL">s</option>
+											<option value="AK">f</option>
+											<option value="AZ">k</option>									
+									</select>
+								</div>
+								  
+							</div> <!-- /caracteristicas particulares ficha uno -->
+							
+							<div data-role="collapsible" data-theme="a" data-content-theme="b"> <!-- / equipamiento ficha uno-->
+								<h3>Equipamiento</h3>
+								
+								<div data-role="collapsible" data-theme="a" data-content-theme="b"> 
+									<h3>Seguridad</h3>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
+											<legend><strong>Airbag Conductor:</strong></legend>
+											<input type="radio" name="airbag_conductor" id="airbag_conductor0" value="0" checked />
+											<label for="airbag_conductor0">No</label>
+											<input type="radio" name="airbag_conductor" id="airbag_conductor1" value="1"/>
+											<label for="airbag_conductor1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Airbag Copiloto:</strong></legend>
+											<input type="radio" name="airbag_copiloto" id="airbag_copiloto0" value="0" checked />
+											<label for="airbag_copiloto0">No</label>
+											<input type="radio" name="airbag_copiloto" id="airbag_copiloto1" value="1"/>
+											<label for="airbag_copiloto1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Airbag Laterales:</strong></legend>
+											<input type="radio" name="airbag_laterales" id="airbag_laterales0" value="0" checked />
+											<label for="airbag_laterales0">No</label>
+											<input type="radio" name="airbag_laterales" id="airbag_laterales1" value="1"/>
+											<label for="airbag_laterales1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Airbag Pasajero:</strong></legend>
+											<input type="radio" name="airbag_pasajero" id="airbag_pasajero0" value="0" checked />
+											<label for="airbag_pasajero0">No</label>
+											<input type="radio" name="airbag_pasajero" id="airbag_pasajero1" value="1"/>
+											<label for="airbag_pasajero1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Asiento para Ni&ntilde;os:</strong></legend>
+											<input type="radio" name="asiento_ninos" id="asiento_ninos0" value="0" checked />
+											<label for="asiento_ninos0">No</label>
+											<input type="radio" name="asiento_ninos" id="asiento_ninos1" value="1"/>
+											<label for="asiento_ninos1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Alarma:</strong></legend>
+										<input type="radio" name="alarma" id="alarma0" value="0" checked />
+										<label for="alarma0">No</label>
+										<input type="radio" name="alarma" id="alarma1" value="1"/>
+										<label for="alarma1">Si</label>				
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Apoya Cabeza Trasero:</strong></legend>
+											<input type="radio" name="apoya_cabeza_tr" id="apoya_cabeza_tr0" value="0" checked />
+											<label for="apoya_cabeza_tr0">No</label>
+											<input type="radio" name="apoya_cabeza_tr" id="apoya_cabeza_tr1" value="1"/>
+											<label for="apoya_cabeza_tr1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Control de Tracci&oacute;n:</strong></legend>
+											<input type="radio" name="control_traccion" id="control_traccion0" value="0" checked />
+											<label for="control_traccion0">No</label>
+											<input type="radio" name="control_traccion" id="control_traccion1" value="1"/>
+											<label for="control_traccion1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>ESP (Estabilizador Electr&oacute;nico):</strong></legend>
+											<input type="radio" name="esp" id="esp0" value="0" checked />
+											<label for="esp0">No</label>
+											<input type="radio" name="esp" id="esp1" value="1"/>
+											<label for="esp1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Frenos de Disco Traseros:</strong></legend>
+											<input type="radio" name="frenos_disco_tr" id="frenos_disco_tr0" value="0" checked />
+											<label for="frenos_disco_tr0">No</label>
+											<input type="radio" name="frenos_disco_tr" id="frenos_disco_tr1" value="1"/>
+											<label for="frenos_disco_tr1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Llave Codificada:</strong></legend>
+											<input type="radio" name="llave_codificada" id="llave_codificada0" value="0" checked />
+											<label for="llave_codificada0">No</label>
+											<input type="radio" name="llave_codificada" id="llave_codificada1" value="1"/>
+											<label for="llave_codificada1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Tuerca de Seguridad:</strong></legend>
+											<input type="radio" name="tuerca_seguridad" id="tuerca_seguridad0" value="0" checked />
+											<label for="tuerca_seguridad0">No</label>
+											<input type="radio" name="tuerca_seguridad" id="tuerca_seguridad1" value="1"/>
+											<label for="tuerca_seguridad1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Sensor de Lluvia:</strong></legend>
+											<input type="radio" name="sensor_lluvia" id="sensor_lluvia0" value="0" checked />
+											<label for="sensor_lluvia0">No</label>
+											<input type="radio" name="sensor_lluvia" id="sensor_lluvia1" value="1"/>
+											<label for="sensor_lluvia1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+										<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+											<legend><strong>Frenos ABS:</strong></legend>
+											<input type="radio" name="frenos_abs" id="frenos_abs0" value="0" checked />
+											<label for="frenos_abs0">No</label>
+											<input type="radio" name="frenos_abs" id="frenos_abs1" value="1"/>
+											<label for="frenos_abs1">Si</label>
+										</fieldset>
+									</div>
+									
+									<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Repartidor Fuerza de Frenado :</strong></legend>
+										<input type="radio" name="repartidor_fuerza" id="repartidor_fuerza0" value="0" checked />
+										<label for="repartidor_fuerza0">No</label>
+										<input type="radio" name="repartidor_fuerza" id="repartidor_fuerza1" value="1"/>
+										<label for="repartidor_fuerza1">Si</label>
+									</fieldset>
+								</div>
+									
+								</div>
+								
+							<div data-role="collapsible" data-theme="a" data-content-theme="b"> 
+								<h3>Confort</h3>
+									
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Aire Acondicionado:</strong></legend>
+										<input type="radio" name="aire_acondicionado" id="aire_acondiciondo0" value="0" checked />
+										<label for="aire_acondiciondo0">No</label>
+										<input type="radio" name="aire_acondicionado" id="aire_acondiciondo1" value="1"/>
+										<label for="aire_acondiciondo1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Climatizador:</strong></legend>
+										<input type="radio" name="climatizador" id="climatizador0" value="0" checked />
+										<label for="climatizador0">No</label>
+										<input type="radio" name="climatizador" id="climatizador1" value="1"/>
+										<label for="climatizador1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Alzavidrios El&eacute;ctricos:</strong></legend>
+										<input type="radio" name="alzavidrios_electricos" id="alzavidrios_electricos0" value="0" checked />
+										<label for="alzavidrios_electricos0">No</label>
+										<input type="radio" name="alzavidrios_electricos" id="alzavidrios_electricos1" value="1"/>
+										<label for="alzavidrios_electricos1">Si</label>						
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Asiento con Memoria:</strong></legend>
+										<input type="radio" name="asiento_memoria" id="asiento_memoria0" value="0" checked />
+										<label for="asiento_memoria0">No</label>
+										<input type="radio" name="asiento_memoria" id="asiento_memoria1" value="1"/>
+										<label for="asiento_memoria1">Si</label>						
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Control Crucero:</strong></legend>
+										<input type="radio" name="control_crucero" id="control_crucero0" value="0" checked />
+										<label for="control_crucero0">No</label>
+										<input type="radio" name="control_crucero" id="control_crucero1" value="1"/>
+										<label for="control_crucero1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Volante Regulable:</strong></legend>
+										<input type="radio" name="volante_regulable" id="volante_regulable0" value="0" checked />
+										<label for="volante_regulable0">No</label>
+										<input type="radio" name="volante_regulable" id="volante_regulable1" value="1"/>
+										<label for="volante_regulable1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Caja para CD:</strong></legend>
+										<input type="radio" name="caja_cd" id="caja_cd0" value="0" checked />
+										<label for="caja_cd0">No</label>
+										<input type="radio" name="caja_cd" id="caja_cd1" value="1"/>
+										<label for="caja_cd1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Radio con CD-MP3:</strong></legend>
+										<input type="radio" name="radio_cd" id="radio_cd0" value="0" checked />
+										<label for="radio_cd0">No</label>
+										<input type="radio" name="radio_cd" id="radio_cd1" value="1"/>
+										<label for="radio_cd1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>4x4-AWD:</strong></legend>
+										<input type="radio" name="cuatro_por_cuatro" id="cuatro_por_cuatro0" value="0" checked />
+										<label for="cuatro_por_cuatro0">No</label>
+										<input type="radio" name="cuatro_por_cuatro" id="cuatro_por_cuatro1" value="1"/>
+										<label for="cuatro_por_cuatro1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Computador Abordo:</strong></legend>
+										<input type="radio" name="computador_abordo" id="computador_abordo0" value="0" checked />
+										<label for="computador_abordo0">No</label>
+										<input type="radio" name="computador_abordo" id="computador_abordo1" value="1"/>
+										<label for="computador_abordo1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Cierre Centralizado:</strong></legend>
+										<input type="radio" name="cierre_centralizado" id="cierre_centralizado0" value="0" checked />
+										<label for="cierre_centralizado0">No</label>
+										<input type="radio" name="cierre_centralizado" id="cierre_centralizado1" value="1"/>
+										<label for="cierre_centralizado1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Asiento El&eacute;ctrico:</strong></legend>
+										<input type="radio" name="asiento_electrico" id="asiento_electrico0" value="0" checked />
+										<label for="asiento_electrico0">No</label>
+										<input type="radio" name="asiento_electrico" id="asiento_electrico1" value="1"/>
+										<label for="asiento_electrico1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Asiento T&eacute;rmico:</strong></legend>
+										<input type="radio" name="asiento_termico" id="asiento_termico0" value="0" checked />
+										<label for="asiento_termico0">No</label>
+										<input type="radio" name="asiento_termico" id="asiento_termico1" value="1"/>
+										<label for="asiento_termico1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Radio Cassette:</strong></legend>
+										<input type="radio" name="radio_cassette" id="radio_cassette0" value="0" checked />
+										<label for="radio_cassette0">No</label>
+										<input type="radio" name="radio_cassette" id="radio_cassette1" value="1"/>
+										<label for="radio_cassette1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Radio AM/FM:</strong></legend>
+										<input type="radio" name="radio_am_fm" id="radio_am0" value="0" checked />
+										<label for="radio_am0">No</label>
+										<input type="radio" name="radio_am_fm" id="radio_am1" value="1"/>
+										<label for="radio_am1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Tapiz de Cuero:</strong></legend>
+										<input type="radio" name="tapiz_cuero" id="tapiz0" value="0" checked />
+										<label for="tapiz0">No</label>
+										<input type="radio" name="tapiz_cuero" id="tapiz1" value="1"/>
+										<label for="tapiz1">Si</label>
+									</fieldset>
+								</div>	
+							</div>
+								
+							<div data-role="collapsible" data-theme="a" data-content-theme="b"> 
+								<h3>Exterior</h3>
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Espejos Exteriores El&eacute;ctricos:</strong></legend>
+										<input type="radio" name="espejos_ext_electricos" id="espejos0" value="0" checked />
+										<label for="espejos0">No</label>
+										<input type="radio" name="espejos_ext_electricos" id="espejos1" value="1"/>
+										<label for="espejos1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Llantas de Aleaci&oacute;n:</strong></legend>
+										<input type="radio" name="llantas_aleacion" id="llantas0" value="0" checked />
+										<label for="llantas0">No</label>
+										<input type="radio" name="llantas_aleacion" id="llantas1" value="1"/>
+										<label for="llantas1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Neblineros Delanteros:</strong></legend>
+										<input type="radio" name="neblineros_delanteros" id="neblineros_de0" value="0" checked />
+										<label for="neblineros_de0">No</label>
+										<input type="radio" name="neblineros_delanteros" id="neblineros_de1" value="1"/>
+										<label for="neblineros_de1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Neblineros Traseros:</strong></legend>
+										<input type="radio" name="neblineros_traseros" id="neblineros_tra0" value="0" checked />
+										<label for="neblineros_tra0">No</label>
+										<input type="radio" name="neblineros_traseros" id="neblineros_tra1" value="1"/>
+										<label for="neblineros_tra1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Techo El&eacute;ctrico:</strong></legend>
+										<input type="radio" name="techo_electrico" id="techo_elec0" value="0" checked />
+										<label for="techo_elec0">No</label>
+										<input type="radio" name="techo_electrico" id="techo_elec1" value="1"/>
+										<label for="techo_elec1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Techo Manual:</strong></legend>
+										<input type="radio" name="techo_manual" id="techo_manual0" value="0" checked />
+										<label for="techo_manual0">No</label>
+										<input type="radio" name="techo_manual" id="techo_manual1" value="1"/>
+										<label for="techo_manual1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Limpiavidrio Trasero:</strong></legend>
+										<input type="radio" name="limpiavidrios_trasero" id="limpiavidrio0" value="0" checked />
+										<label for="limpiavidrio0">No</label>
+										<input type="radio" name="limpiavidrios_trasero" id="limpiavidrio1" value="1"/>
+										<label for="limpiavidrio1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Vidrios Polarizados:</strong></legend>
+										<input type="radio" name="vidrios_polarizados" id="vidrios0" value="0" checked />
+										<label for="vidrios0">No</label>
+										<input type="radio" name="vidrios_polarizados" id="vidrios1" value="1"/>
+										<label for="vidrios1">Si</label>
+									</fieldset>
+								</div>
+								
+								<div data-role="fieldcontain">
+									<fieldset  data-role="controlgroup" data-mini="true" data-type="horizontal">
+										<legend><strong>Luces de Xenon:</strong></legend>
+										<input type="radio" name="luces_xenon" id="luces0" value="0" checked />
+										<label for="luces0">No</label>
+										<input type="radio" name="luces_xenon" id="luces1" value="1"/>
+										<label for="luces1">Si</label>
+									</fieldset>
+								</div>
+								
+							</div>
+								
+																
+							</div> <!-- / equipamiento ficha uno-->
+							
+							<div data-role="collapsible" data-theme="a" data-content-theme="b">
+								<h3>Fotos</h3>
+									
+										<input type="button" data-mini="true" data-inline="true" data-theme="a" onclick="capturePhoto();" value="Capturar Foto" />
+										<img style="display:none;width:60px;height:60px;" id="smallImage" src="" />		
+							</div>	
+					
+							<input type="hidden" id="id"/>
+						
+							</div>	<!-- /div contenido ficha uno -->
+				
+				<p>
+				<div data-role="controlgroup" data-type="horizontal" data-corners="false">
+				<a href="#" data-role="button" data-icon="arrow-l"  data-mini="true" data-inline="true" data-theme="a" onclick="insertRecord();">Guardar Ficha</a>
+				<a href="#" data-role="button" data-icon="refresh"  data-mini="true" data-theme="a" onclick="resetForm();">Reset Form<a/>
+				</div>
+				
+				
+			
+				
+               <!-- <button id="btnUpdate" type=submit data-theme="a" data-inline ="true">Update</button>-->
+                
+				
+			</div>  <!--/div content-->
+			<div data-role="footer">
+				<h3>BackOffice - Carga Ficha Autom&oacute;vil</h3>
+			</div>
+		</div> 	<!-- pagina dos/-->
+	</body>
+</html>
